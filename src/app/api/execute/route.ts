@@ -25,29 +25,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Language and source code are required." }, { status: 400 });
     }
 
-    const langMap: Record<string, { language: string; version: string }> = {
-      javascript: { language: "javascript", version: "18.15.0" },
-      typescript: { language: "typescript", version: "5.0.3" },
-      python: { language: "python", version: "3.10.0" },
-      java: { language: "java", version: "15.0.2" },
-      cpp: { language: "c++", version: "10.2.0" },
+    const langMap: Record<string, string> = {
+      javascript: "nodejs-20.17.0",
+      typescript: "typescript-5.6.2",
+      python: "cpython-3.10.15",
+      java: "openjdk-jdk-21+35",
+      cpp: "gcc-13.2.0",
     };
 
-    const runConfig = langMap[language.toLowerCase()];
-    if (!runConfig) {
+    const compiler = langMap[language.toLowerCase()];
+    if (!compiler) {
       return NextResponse.json({ error: `Language ${language} is not supported.` }, { status: 400 });
     }
 
-    const payload = {
-      language: runConfig.language,
-      version: runConfig.version,
-      files: [{ content: sourceCode }]
-    };
-
-    // 1. Try primary Piston endpoint (EMKC)
+    // 1. Try primary execution API (Wandbox)
     try {
-      const response = await axios.post("https://emkc.org/api/v2/piston/execute", payload, { timeout: 5000 });
-      return NextResponse.json(response.data);
+      const response = await axios.post("https://wandbox.org/api/compile.json", {
+        compiler: compiler,
+        code: sourceCode
+      }, { timeout: 8000 });
+
+      const data = response.data;
+      return NextResponse.json({
+        run: {
+          stdout: data.program_message || data.compiler_message || "",
+          stderr: data.program_error || data.compiler_error || "",
+          code: data.status === "0" ? 0 : 1
+        }
+      });
     } catch (err1) {
       // 2. Ultimate Fallback: Execute locally (only works on local machine)
       try {
@@ -61,26 +66,26 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: "Public API is down. Local fallback only supports JavaScript and Python currently." }, { status: 503 });
         }
 
-          const filepath = join(tmpdir(), `codearena_${timestamp}${ext}`);
-          await writeFile(filepath, sourceCode);
-          
-          const { stdout, stderr } = await execAsync(`${cmd} "${filepath}"`);
-          
-          await unlink(filepath).catch(() => {});
+        const filepath = join(tmpdir(), `codearena_${timestamp}${ext}`);
+        await writeFile(filepath, sourceCode);
+        
+        const { stdout, stderr } = await execAsync(`${cmd} "${filepath}"`);
+        
+        await unlink(filepath).catch(() => {});
 
-          return NextResponse.json({
-            run: {
-              stdout: stdout,
-              stderr: stderr,
-              code: stderr ? 1 : 0
-            }
-          });
-        } catch (localErr: any) {
-          return NextResponse.json(
-            { error: "Public APIs failed, and Local Execution failed. Ensure Node/Python are installed.", details: localErr.message },
-            { status: 503 }
-          );
-        }
+        return NextResponse.json({
+          run: {
+            stdout: stdout,
+            stderr: stderr,
+            code: stderr ? 1 : 0
+          }
+        });
+      } catch (localErr: any) {
+        return NextResponse.json(
+          { error: "Public API failed, and Local Execution failed. Ensure Node/Python are installed.", details: localErr.message },
+          { status: 503 }
+        );
+      }
     }
 
   } catch (error: any) {
