@@ -38,11 +38,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Language ${language} is not supported.` }, { status: 400 });
     }
 
+    // Wandbox hardcodes Java files as 'prog.java'.
+    // If the user writes 'public class Main', Java enforces that the file MUST be named 'Main.java'.
+    // Stripping 'public ' from 'public class' allows Java to compile it inside 'prog.java'.
+    let finalCode = sourceCode;
+    if (language.toLowerCase() === "java") {
+      finalCode = finalCode.replace(/public\s+class/, "class");
+    }
+
     // 1. Try primary execution API (Wandbox)
     try {
       const response = await axios.post("https://wandbox.org/api/compile.json", {
         compiler: compiler,
-        code: sourceCode
+        code: finalCode
       }, { timeout: 8000 });
 
       const data = response.data;
