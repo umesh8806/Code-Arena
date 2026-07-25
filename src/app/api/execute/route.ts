@@ -44,27 +44,22 @@ export async function POST(req: NextRequest) {
       files: [{ content: sourceCode }]
     };
 
-    // 1. Try public Piston endpoint
+    // 1. Try primary Piston endpoint (EMKC)
     try {
-      const response = await axios.post("https://emscripten.run/api/v2/execute", payload, { timeout: 3000 });
+      const response = await axios.post("https://emkc.org/api/v2/piston/execute", payload, { timeout: 5000 });
       return NextResponse.json(response.data);
     } catch (err1) {
-      // 2. Try official Piston fallback
+      // 2. Ultimate Fallback: Execute locally (only works on local machine)
       try {
-        const response2 = await axios.post("https://piston.piston.rs/api/v2/execute", payload, { timeout: 3000 });
-        return NextResponse.json(response2.data);
-      } catch (err2: any) {
-        // 3. Ultimate Fallback: Execute locally
-        try {
-          const timestamp = Date.now();
-          let ext = ".txt";
-          let cmd = "";
-          
-          if (language === "javascript") { ext = ".js"; cmd = "node"; }
-          else if (language === "python") { ext = ".py"; cmd = "python"; }
-          else {
-            return NextResponse.json({ error: "Public APIs are down. Local fallback only supports JavaScript and Python currently." }, { status: 503 });
-          }
+        const timestamp = Date.now();
+        let ext = ".txt";
+        let cmd = "";
+        
+        if (language === "javascript") { ext = ".js"; cmd = "node"; }
+        else if (language === "python") { ext = ".py"; cmd = "python"; }
+        else {
+          return NextResponse.json({ error: "Public API is down. Local fallback only supports JavaScript and Python currently." }, { status: 503 });
+        }
 
           const filepath = join(tmpdir(), `codearena_${timestamp}${ext}`);
           await writeFile(filepath, sourceCode);
@@ -86,7 +81,6 @@ export async function POST(req: NextRequest) {
             { status: 503 }
           );
         }
-      }
     }
 
   } catch (error: any) {

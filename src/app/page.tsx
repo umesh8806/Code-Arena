@@ -102,7 +102,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="w-full mt-24 pt-8 border-t border-white/10 flex flex-col items-center justify-center gap-4 z-10 relative">
         <div className="text-gray-400 text-sm font-medium">
-          Made by <span className="text-white font-bold tracking-wide">Developer</span>
+          Made by <span className="text-white font-bold tracking-wide">Umesh Bhamare</span>
         </div>
         <div className="flex items-center gap-6">
           <a href="mailto:bhamareumeshn1536@gmail.com" target="_blank" rel="noreferrer" className="text-gray-500 hover:text-blue-400 transition-colors flex items-center gap-2 text-sm font-medium">
