@@ -44,6 +44,30 @@ export async function POST(req: NextRequest) {
     let finalCode = sourceCode;
     if (language.toLowerCase() === "java") {
       finalCode = finalCode.replace(/public\s+class/, "class");
+      
+      // Intercept Java GUI libraries
+      if (finalCode.includes("java.awt") || finalCode.includes("javax.swing") || finalCode.includes("javafx")) {
+        return NextResponse.json({
+          run: {
+            stdout: "",
+            stderr: "Error: The Code Compiler runs in a headless remote environment. GUI libraries like AWT, Swing, and JavaFX cannot open windows here. Please use this compiler for console-based applications.",
+            code: 1
+          }
+        });
+      }
+    }
+
+    if (language.toLowerCase() === "python") {
+      // Intercept Python GUI libraries
+      if (finalCode.includes("import turtle") || finalCode.includes("import tkinter") || finalCode.includes("import pygame") || finalCode.includes("from turtle") || finalCode.includes("from tkinter")) {
+        return NextResponse.json({
+          run: {
+            stdout: "",
+            stderr: "Error: The Code Compiler is a headless environment. GUI libraries like 'turtle', 'tkinter', and 'pygame' cannot open graphical windows in a web-based remote compiler. Please run GUI applications locally on your computer, or use this compiler for text-based terminal programs.",
+            code: 1
+          }
+        });
+      }
     }
 
     // 1. Try primary execution API (Wandbox)
