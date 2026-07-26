@@ -11,7 +11,7 @@ interface CodeEditorProps {
 
 export default function CodeEditor({ language, code, onChange }: CodeEditorProps) {
   return (
-    <div className="w-full h-full rounded-2xl overflow-hidden border border-white/5 bg-[#1e1e1e] shadow-2xl relative">
+    <div className="flex-1 w-full h-full rounded-2xl overflow-hidden border border-white/5 bg-[#1e1e1e] shadow-2xl relative z-10">
       <Editor
         height="100%"
         language={language}

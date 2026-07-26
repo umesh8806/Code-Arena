@@ -107,7 +107,7 @@ export default function ArenaPage() {
           <iframe 
             srcDoc={srcDoc}
             title="Live Preview"
-            className="w-full h-full border-none bg-white"
+            className="flex-1 w-full h-full border-none bg-white"
             sandbox="allow-scripts"
           />
         </div>
