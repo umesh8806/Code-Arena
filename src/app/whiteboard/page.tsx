@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Eraser, Download, ArrowLeft, Pen, Square } from "lucide-react";
+import { Eraser, Download, ArrowLeft, Pen, Square, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function WhiteboardPage() {
@@ -10,40 +10,82 @@ export default function WhiteboardPage() {
   const [color, setColor] = useState("#3b82f6");
   const [brushSize, setBrushSize] = useState(3);
   const [tool, setTool] = useState<"pen" | "eraser">("pen");
+  
+  // Pagination State
+  const [pages, setPages] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
 
+  // Initialize canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // Set proper dimensions based on container
     const parent = canvas.parentElement;
     if (parent) {
       canvas.width = parent.clientWidth;
       canvas.height = parent.clientHeight;
     }
     
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    
-    // Fill background with dark color
-    ctx.fillStyle = "#0f172a"; // slate-900
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Set initial stroke style
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
+    clearCanvas(false); // fill with default background without saving to history yet
   }, []);
+
+  // Load a page when switching
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+
+    if (pages[currentPage]) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = pages[currentPage];
+    } else {
+      clearCanvas(false);
+    }
+  }, [currentPage]);
+
+  const saveCurrentPage = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const dataUrl = canvas.toDataURL("image/png");
+    setPages(prev => {
+      const newPages = [...prev];
+      newPages[currentPage] = dataUrl;
+      return newPages;
+    });
+  };
+
+  const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    
+    if ('touches' in e) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      };
+    } else {
+      return {
+        x: e.nativeEvent.offsetX,
+        y: e.nativeEvent.offsetY
+      };
+    }
+  };
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
+    const { x, y } = getCoordinates(e);
     ctx.beginPath();
-    ctx.moveTo(
-      'touches' in e ? e.touches[0].clientX - canvas.offsetLeft : e.nativeEvent.offsetX,
-      'touches' in e ? e.touches[0].clientY - canvas.offsetTop : e.nativeEvent.offsetY
-    );
+    ctx.moveTo(x, y);
     setIsDrawing(true);
   };
 
@@ -53,13 +95,13 @@ export default function WhiteboardPage() {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    ctx.lineTo(
-      'touches' in e ? e.touches[0].clientX - canvas.offsetLeft : e.nativeEvent.offsetX,
-      'touches' in e ? e.touches[0].clientY - canvas.offsetTop : e.nativeEvent.offsetY
-    );
+    const { x, y } = getCoordinates(e);
+    ctx.lineTo(x, y);
     
     ctx.strokeStyle = tool === "eraser" ? "#0f172a" : color;
     ctx.lineWidth = tool === "eraser" ? brushSize * 4 : brushSize;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.stroke();
   };
 
@@ -67,24 +109,35 @@ export default function WhiteboardPage() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (ctx) ctx.closePath();
+    
+    if (isDrawing) {
+      saveCurrentPage(); // auto-save stroke to current page
+    }
     setIsDrawing(false);
   };
 
-  const clearCanvas = () => {
+  const clearCanvas = (save: boolean = true) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (save) saveCurrentPage();
   };
 
   const downloadCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const link = document.createElement("a");
-    link.download = "code-arena-whiteboard.png";
+    link.download = `code-arena-whiteboard-page-${currentPage + 1}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
+  };
+
+  const addNewPage = () => {
+    saveCurrentPage();
+    const newPageIndex = pages.length > 0 ? pages.length : 1;
+    setCurrentPage(newPageIndex);
   };
 
   return (
@@ -115,7 +168,7 @@ export default function WhiteboardPage() {
           <Eraser className="w-5 h-5" />
         </button>
 
-        <div className="w-px h-8 bg-white/10 mx-2" />
+        <div className="w-px h-8 bg-white/10 mx-2 hidden sm:block" />
 
         <input 
           type="color" 
@@ -131,14 +184,14 @@ export default function WhiteboardPage() {
           max="20" 
           value={brushSize}
           onChange={(e) => setBrushSize(parseInt(e.target.value))}
-          className="w-24 accent-blue-600"
+          className="w-16 sm:w-24 accent-blue-600"
           title="Brush Size"
         />
 
         <div className="w-px h-8 bg-white/10 mx-2" />
 
         <button 
-          onClick={clearCanvas}
+          onClick={() => clearCanvas(true)}
           className="p-3 text-red-400 hover:bg-red-400/10 rounded-xl transition-colors"
           title="Clear Board"
         >
@@ -151,6 +204,39 @@ export default function WhiteboardPage() {
         >
           <Download className="w-5 h-5" />
         </button>
+        
+        {/* Pagination UI */}
+        <div className="flex items-center gap-1 bg-[#0f172a] rounded-xl p-1 border border-white/5 ml-2">
+          <button 
+            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+            disabled={currentPage === 0}
+            className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors disabled:opacity-30"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          
+          <span className="text-gray-300 text-xs font-mono font-medium min-w-[3rem] text-center">
+            {currentPage + 1} / {Math.max(pages.length, currentPage + 1)}
+          </span>
+          
+          {currentPage === Math.max(0, pages.length - 1) || pages.length === 0 ? (
+            <button 
+              onClick={addNewPage}
+              className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10 rounded-lg transition-colors"
+              title="Add New Page"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          ) : (
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(pages.length - 1, prev + 1))}
+              className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
       </div>
 
       {/* Canvas */}
