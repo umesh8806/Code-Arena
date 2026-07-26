@@ -44,10 +44,10 @@ export default function CompilerPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-background">
+    <div className="flex-1 flex flex-col h-[calc(100vh-64px)] bg-background">
       
       {/* Toolbar */}
-      <div className="h-16 shrink-0 border-b border-white/5 flex items-center justify-between px-6 bg-[#0a0a0c]">
+      <div className="min-h-[64px] shrink-0 border-b border-white/5 flex flex-wrap items-center justify-between px-4 sm:px-6 py-3 gap-4 bg-[#0a0a0c]">
         <div className="flex items-center gap-4">
           <select
             value={language}
@@ -77,10 +77,10 @@ export default function CompilerPage() {
       </div>
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col lg:flex-row p-6 gap-6 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row p-4 sm:p-6 gap-4 sm:gap-6 overflow-y-auto lg:overflow-hidden">
         
         {/* Editor Pane (Left) */}
-        <div className="flex-1 min-h-[300px] lg:min-h-0 relative group lg:max-w-[50%] flex flex-col">
+        <div className="min-h-[300px] lg:flex-1 lg:min-h-0 relative group lg:w-1/2 flex flex-col shrink-0">
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <CodeEditor 
             language={language}
@@ -90,7 +90,7 @@ export default function CompilerPage() {
         </div>
 
         {/* Terminal Pane (Right) */}
-        <div className="flex-1 min-h-[300px] lg:min-h-0 lg:max-w-[50%] flex flex-col relative group">
+        <div className="min-h-[300px] lg:flex-1 lg:min-h-0 lg:w-1/2 flex flex-col relative group shrink-0">
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <Terminal 
             output={output}

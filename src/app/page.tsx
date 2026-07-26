@@ -22,10 +22,10 @@ export default function Home() {
             <Zap className="w-4 h-4" />
             <span>The Next Generation Code Arena</span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-gray-200 to-gray-500 pb-2">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-gray-200 to-gray-500 pb-2">
             Write. Compile. Dominate.
           </h1>
-          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
             A professional-grade coding environment built for developers. 
             Experience lightning-fast execution, robust multi-language support, and an interface that stays out of your way.
           </p>
@@ -104,7 +104,7 @@ export default function Home() {
         <div className="text-gray-400 text-sm font-medium">
           Made by <span className="text-white font-bold tracking-wide">Umesh Bhamare</span>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
           <a href="mailto:bhamareumeshn1536@gmail.com" target="_blank" rel="noreferrer" className="text-gray-500 hover:text-blue-400 transition-colors flex items-center gap-2 text-sm font-medium">
             <Mail className="w-5 h-5" />
             Gmail

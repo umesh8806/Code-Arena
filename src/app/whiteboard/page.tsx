@@ -91,10 +91,10 @@ export default function WhiteboardPage() {
     <div className="flex-1 flex flex-col bg-[#0f172a] relative overflow-hidden">
       
       {/* Toolbar */}
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-4 p-2 bg-[#1e293b] rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md">
+      <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-10 flex flex-wrap justify-center items-center gap-2 sm:gap-4 p-2 bg-[#1e293b] rounded-2xl border border-white/10 shadow-2xl backdrop-blur-md w-[95%] sm:w-auto">
         <Link 
           href="/" 
-          className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors border-r border-white/5 mr-2 pr-4"
+          className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors border-r border-white/5 mr-0 sm:mr-2 pr-2 sm:pr-4"
           title="Return Home"
         >
           <ArrowLeft className="w-5 h-5" />

@@ -46,14 +46,14 @@ export default function ArenaPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-background">
+    <div className="flex-1 flex flex-col h-[calc(100vh-64px)] bg-background">
       
       {/* Toolbar */}
-      <div className="h-16 shrink-0 border-b border-white/5 flex items-center justify-between px-6 bg-[#0a0a0c]">
-        <div className="flex items-center gap-2 bg-[#1a1a1f] p-1 rounded-xl border border-white/10">
+      <div className="min-h-[64px] shrink-0 border-b border-white/5 flex flex-wrap items-center justify-between px-4 sm:px-6 py-3 gap-4 bg-[#0a0a0c]">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 bg-[#1a1a1f] p-1 rounded-xl border border-white/10 w-full sm:w-auto">
           <button 
             onClick={() => setActiveTab("html")}
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "html" ? 'bg-orange-500/20 text-orange-500' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${activeTab === "html" ? 'bg-orange-500/20 text-orange-500' : 'text-gray-400 hover:text-white'}`}
           >
             HTML
           </button>
@@ -65,13 +65,13 @@ export default function ArenaPage() {
           </button>
           <button 
             onClick={() => setActiveTab("javascript")}
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === "javascript" ? 'bg-yellow-500/20 text-yellow-400' : 'text-gray-400 hover:text-white'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${activeTab === "javascript" ? 'bg-yellow-500/20 text-yellow-400' : 'text-gray-400 hover:text-white'}`}
           >
-            JavaScript
+            JS
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 hidden sm:flex">
           <div className="flex items-center gap-2 px-4 py-2 text-emerald-400 font-medium text-sm bg-emerald-400/10 rounded-xl border border-emerald-400/20">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -83,10 +83,10 @@ export default function ArenaPage() {
       </div>
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col lg:flex-row p-6 gap-6 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row p-4 sm:p-6 gap-4 sm:gap-6 overflow-y-auto lg:overflow-hidden">
         
         {/* Editor Pane (Left) */}
-        <div className="flex-1 min-h-[300px] lg:min-h-0 relative group lg:max-w-[50%] flex flex-col">
+        <div className="min-h-[300px] lg:flex-1 lg:min-h-0 relative group lg:w-1/2 flex flex-col shrink-0">
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <CodeEditor 
             language={activeTab}
@@ -96,7 +96,7 @@ export default function ArenaPage() {
         </div>
 
         {/* Live Preview Pane (Right) */}
-        <div className="flex-1 min-h-[500px] lg:min-h-0 lg:max-w-[50%] relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-2xl border border-white/20">
+        <div className="min-h-[400px] lg:flex-1 lg:min-h-0 lg:w-1/2 relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-2xl border border-white/20 shrink-0">
           <div className="h-10 bg-gray-100 border-b border-gray-200 flex items-center justify-between px-4 shrink-0 text-gray-500">
             <div className="flex items-center gap-2 text-sm font-medium">
               <LayoutTemplate className="w-4 h-4" />
