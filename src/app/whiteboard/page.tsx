@@ -8,6 +8,7 @@ export default function WhiteboardPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("#3b82f6");
+  const [bgColor, setBgColor] = useState("#0f172a");
   const [brushSize, setBrushSize] = useState(3);
   const [tool, setTool] = useState<"pen" | "eraser">("pen");
   
@@ -38,7 +39,7 @@ export default function WhiteboardPage() {
     if (pages[currentPage]) {
       const img = new Image();
       img.onload = () => {
-        ctx.fillStyle = "#0f172a";
+        ctx.fillStyle = bgColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
       };
@@ -46,7 +47,7 @@ export default function WhiteboardPage() {
     } else {
       clearCanvas(false);
     }
-  }, [currentPage]);
+  }, [currentPage, bgColor]);
 
   const saveCurrentPage = () => {
     const canvas = canvasRef.current;
@@ -98,7 +99,7 @@ export default function WhiteboardPage() {
     const { x, y } = getCoordinates(e);
     ctx.lineTo(x, y);
     
-    ctx.strokeStyle = tool === "eraser" ? "#0f172a" : color;
+    ctx.strokeStyle = tool === "eraser" ? bgColor : color;
     ctx.lineWidth = tool === "eraser" ? brushSize * 4 : brushSize;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
@@ -120,7 +121,7 @@ export default function WhiteboardPage() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
-    ctx.fillStyle = "#0f172a";
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     if (save) saveCurrentPage();
   };
@@ -170,13 +171,25 @@ export default function WhiteboardPage() {
 
         <div className="w-px h-8 bg-white/10 mx-2 hidden sm:block" />
 
-        <input 
-          type="color" 
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          className="w-8 h-8 rounded-full border-0 outline-none cursor-pointer p-0 bg-transparent"
-          title="Color Picker"
-        />
+        <div className="flex flex-col items-center gap-1" title="Pen Color">
+          <input 
+            type="color" 
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            className="w-8 h-8 rounded-full border-0 outline-none cursor-pointer p-0 bg-transparent"
+          />
+          <span className="text-[10px] text-gray-400">Pen</span>
+        </div>
+        
+        <div className="flex flex-col items-center gap-1" title="Board Color">
+          <input 
+            type="color" 
+            value={bgColor}
+            onChange={(e) => setBgColor(e.target.value)}
+            className="w-8 h-8 rounded-full border-0 outline-none cursor-pointer p-0 bg-transparent"
+          />
+          <span className="text-[10px] text-gray-400">Board</span>
+        </div>
         
         <input 
           type="range" 
